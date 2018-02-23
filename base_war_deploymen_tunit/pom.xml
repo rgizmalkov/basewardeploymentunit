@@ -76,23 +76,64 @@
     <build>
         <plugins>
             <!--DOCKER PLUGIN-->
-            <!--<plugin>-->
-                <!--<groupId>com.spotify</groupId>-->
-                <!--<artifactId>docker-maven-plugin</artifactId>-->
-                <!--<version>1.0.0</version>-->
-                <!--<executions>-->
-                    <!--<execution>-->
-                        <!--<id>build-image</id>-->
-                        <!--<phase>package</phase>-->
-                        <!--<goals><goal>build</goal></goals>-->
-                    <!--</execution>-->
-                    <!--<execution>-->
-                        <!--<id>tag-image</id>-->
-                        <!--<phase>package</phase>-->
-                        <!--<goals><goal>tag</goal></goals>-->
-                    <!--</execution>-->
-                <!--</executions>-->
-            <!--</plugin>-->
+            <plugin>
+                <groupId>io.fabric8</groupId>
+                <artifactId>docker-maven-plugin</artifactId>
+                <version>0.24.0</version>
+                <executions>
+                    <execution>
+                        <id>Build docker container</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>build</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>Push docker container</id>
+                        <phase>deploy</phase>
+                        <goals>
+                            <goal>push</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <images>
+                        <image>
+                            <name>${project.artifactId}</name>
+                            <registry>registry.io</registry>
+                            <build>
+                                <from>tomcat:9.0-jre8-alpine</from>
+                                <tags>
+                                    <tag>docker_tomcat_test</tag>
+                                </tags>
+                                <cmd>catalina.sh run</cmd>
+                                <assembly>
+                                    <basedir>/</basedir>
+                                    <inline>
+                                        <!--<dependencySet>-->
+                                            <!--<outputDirectory>jars</outputDirectory>-->
+                                        <!--</dependencySet>-->
+                                        <files>
+                                            <file>
+                                                <source>${project.build.directory}/${project.build.finalName}.war</source>
+                                                <outputDirectory>/usr/local/tomcat/webapps</outputDirectory>
+                                            </file>
+                                            <file>
+                                                <source>${project.basedir}/tomcat/manager.xml</source>
+                                                <outputDirectory>/usr/local/tomcat/conf/Catalina/localhost</outputDirectory>
+                                            </file>
+                                            <file>
+                                                <source>${project.basedir}/tomcat/tomcat-users.xml</source>
+                                                <outputDirectory>/usr/local/tomcat/conf</outputDirectory>
+                                            </file>
+                                        </files>
+                                    </inline>
+                                </assembly>
+                            </build>
+                        </image>
+                    </images>
+                </configuration>
+            </plugin>
             <!--END-->
 
             <plugin>
