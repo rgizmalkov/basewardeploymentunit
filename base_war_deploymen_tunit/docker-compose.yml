@@ -1,0 +1,20 @@
+version: '3'
+services:
+  db:
+    image: "redis:4.0.8-alpine"
+    hostname: "redis"
+    ports:
+      - "6379:6379"
+  mywar_1:
+    image: "base-war-deployment-unit:docker_tomcat_test"
+    ports:
+      - "9000:8080"
+    links:
+      - "db:redis"
+  mywar_2:
+    image: "base-war-deployment-unit:docker_tomcat_test"
+    ports:
+      - "9001:8080"
+    links:
+      - "db:redis"
+
